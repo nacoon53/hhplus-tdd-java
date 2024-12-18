@@ -2,7 +2,6 @@ package io.hhplus.tdd.point;
 
 import io.hhplus.tdd.point.dto.UserPointRequestDTO;
 import io.hhplus.tdd.point.service.UserPointService;
-import io.hhplus.tdd.point.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +12,9 @@ import java.util.List;
 @RequestMapping("/point")
 public class PointController {
 
-    UserService userService;
     UserPointService userPointService;
 
-    public PointController(UserService userService, UserPointService userPointService) {
-        this.userService = userService;
+    public PointController(UserPointService userPointService) {
         this.userPointService = userPointService;
     }
 
