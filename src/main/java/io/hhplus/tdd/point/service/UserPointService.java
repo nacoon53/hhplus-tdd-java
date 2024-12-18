@@ -3,7 +3,6 @@ package io.hhplus.tdd.point.service;
 import io.hhplus.tdd.point.PointHistory;
 import io.hhplus.tdd.point.UserPoint;
 import io.hhplus.tdd.point.repository.UserPointRepository;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.List;
 public class UserPointService {
     UserPointRepository userPointRepository;
 
-    long maximumPoint = 10000000;
+    long maximumPoint = 10_000_000;
 
     public UserPointService(UserPointRepository userPointRepository) {
         this.userPointRepository = userPointRepository;
@@ -27,9 +26,9 @@ public class UserPointService {
         return userPointRepository.selectAllByUserId(id);
     }
 
-    public UserPoint chargeUserPoint(long id, long amount) throws BadRequestException{
+    public UserPoint chargeUserPoint(long id, long amount) {
         if(amount < 0 || amount > maximumPoint) { //todo(나경) 이거는 객체의 책임으로 가져갈수 있을 것 같음. 더 고민해 보기
-            throw new BadRequestException("적립할 포인트 금액이 유효하지 않습니다.");
+            throw new IllegalArgumentException("적립할 포인트 금액이 유효하지 않습니다.");
         }
 
         UserPoint savedUserPoint = getPointAmount(id);
@@ -38,14 +37,14 @@ public class UserPointService {
         userPointRepository.insertPointHistoryofCharge(id, amount);
 
         if(updatedUserPoint.point() > maximumPoint) {
-           throw new BadRequestException("최대 보유 가능한 포인트 잔액을 초과합니다.");
+           throw new IllegalArgumentException("최대 보유 가능한 포인트 잔액을 초과합니다.");
         }
         return updatedUserPoint;
     }
 
-    public UserPoint useUserPoint(long id, long amount) throws BadRequestException{
+    public UserPoint useUserPoint(long id, long amount) throws IllegalArgumentException{
         if(amount < 0 || amount > maximumPoint) { //todo(나경) 이거는 객체의 책임으로 가져갈수 있을 것 같음. 더 고민해 보기
-            throw new BadRequestException("사용할 포인트 금액이 유효하지 않습니다.");
+            throw new IllegalArgumentException("사용할 포인트 금액이 유효하지 않습니다.");
         }
 
         UserPoint savedUserPoint = getPointAmount(id);
@@ -54,7 +53,7 @@ public class UserPointService {
         userPointRepository.insertPointHistoryofUse(id, amount);
 
         if(updatedUserPoint.point() < 0) {
-            throw new BadRequestException("보유한 포인트 금액을 초과하여 사용할 수 없습니다.");
+            throw new IllegalArgumentException("보유한 포인트 금액을 초과하여 사용할 수 없습니다.");
         }
 
         return updatedUserPoint;

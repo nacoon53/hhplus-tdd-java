@@ -3,7 +3,6 @@ package io.hhplus.tdd.point;
 import io.hhplus.tdd.point.dto.UserPointRequestDTO;
 import io.hhplus.tdd.point.service.UserPointService;
 import io.hhplus.tdd.point.service.UserService;
-import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +27,7 @@ public class PointController {
     @GetMapping("{id}")
     public UserPoint point(
             @PathVariable long id
-    ) throws BadRequestException {
+    ) {
         //포인트 조회
         UserPoint userPoint = userPointService.getPointAmount(id);
 
@@ -51,7 +50,7 @@ public class PointController {
     public UserPoint charge(
             @PathVariable long id,
             @RequestBody UserPointRequestDTO requestDTO
-            ) throws BadRequestException{
+            ) {
         return userPointService.chargeUserPoint(id, requestDTO.getAmount());
     }
 
@@ -60,7 +59,7 @@ public class PointController {
     public UserPoint use(
             @PathVariable long id,
             @RequestBody UserPointRequestDTO requestDTO
-    ) throws BadRequestException {
+    ) {
         return userPointService.useUserPoint(id, requestDTO.getAmount());
     }
 }

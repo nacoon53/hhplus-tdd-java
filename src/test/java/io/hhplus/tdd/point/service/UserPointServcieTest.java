@@ -2,7 +2,6 @@ package io.hhplus.tdd.point.service;
 
 import io.hhplus.tdd.point.UserPoint;
 import io.hhplus.tdd.point.repository.UserPointRepository;
-import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,7 +32,6 @@ class UserPointServiceTest {
         long amount = 500;
         given(userPointRepository.selectById(anyLong())).willReturn(UserPoint.empty(id));
         given(userPointRepository.updateUserPoint(anyLong(), anyLong())).willReturn(new UserPoint(id, 500, System.currentTimeMillis()));
-        given(userPointRepository.insertPointHistoryofCharge(anyLong(), anyLong())).willReturn(null);
 
         //when
         try {
@@ -56,7 +54,7 @@ class UserPointServiceTest {
         long amount = -500;
 
         //when
-        Exception exception = assertThrows(BadRequestException.class, () -> {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
                     userPointService.chargeUserPoint(id, amount);
                 });
 
@@ -77,7 +75,7 @@ class UserPointServiceTest {
 
 
         //when
-        Exception exception = assertThrows(BadRequestException.class, () -> {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             userPointService.chargeUserPoint(id, amount);
         });
 
@@ -95,21 +93,15 @@ class UserPointServiceTest {
 
         given(userPointRepository.selectById(anyLong())).willReturn(givenUserPoint);
         given(userPointRepository.updateUserPoint(anyLong(), anyLong())).willReturn(new UserPoint(id, 0, System.currentTimeMillis()));
-        given(userPointRepository.insertPointHistoryofUse(anyLong(), anyLong())).willReturn(null);
-
 
         //when
-        try {
-            UserPoint userPoint = userPointService.useUserPoint(id, amount);
+        UserPoint userPoint = userPointService.useUserPoint(id, amount);
 
-            //then
-            assertThat(userPoint.point()).isEqualTo(0);
+        //then
+        assertThat(userPoint.point()).isEqualTo(0);
 
-            verify(userPointRepository).updateUserPoint(eq(id), eq(0L));
-            verify(userPointRepository).insertPointHistoryofUse(eq(id), eq(amount));
-        } catch(Exception e) {
-            fail();
-        }
+        verify(userPointRepository).updateUserPoint(eq(id), eq(0L));
+        verify(userPointRepository).insertPointHistoryofUse(eq(id), eq(amount));
     }
 
     @Test
@@ -121,7 +113,7 @@ class UserPointServiceTest {
         UserPoint givenUserPoint = new UserPoint(id, 1000, System.currentTimeMillis());
 
         //when
-        Exception exception = assertThrows(BadRequestException.class, () -> {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             userPointService.useUserPoint(id, amount);
         });
 
@@ -139,7 +131,7 @@ class UserPointServiceTest {
         given(userPointRepository.updateUserPoint(anyLong(), anyLong())).willReturn(new UserPoint(id, -100, System.currentTimeMillis()));
 
         //when
-        Exception exception = assertThrows(BadRequestException.class, () -> {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             userPointService.useUserPoint(id, amount);
         });
 
