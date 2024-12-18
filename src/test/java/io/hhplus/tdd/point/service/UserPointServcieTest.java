@@ -9,8 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -34,17 +33,13 @@ class UserPointServiceTest {
         given(userPointRepository.updateUserPoint(anyLong(), anyLong())).willReturn(new UserPoint(id, 500, System.currentTimeMillis()));
 
         //when
-        try {
-            UserPoint userPoint = userPointService.chargeUserPoint(id, amount);
+        UserPoint userPoint = userPointService.chargeUserPoint(id, amount);
 
-            //then
-            assertThat(userPoint.point()).isEqualTo(500);
+        //then
+        assertThat(userPoint.point()).isEqualTo(500);
 
-            verify(userPointRepository).updateUserPoint(eq(id), eq(amount));
-            verify(userPointRepository).insertPointHistoryofCharge(eq(id), eq(amount));
-        }catch(Exception e) {
-            fail();
-        }
+        verify(userPointRepository).updateUserPoint(eq(id), eq(amount));
+        verify(userPointRepository).insertPointHistoryofCharge(eq(id), eq(amount));
     }
 
     @Test
@@ -53,13 +48,10 @@ class UserPointServiceTest {
         long id = 0L;
         long amount = -500;
 
-        //when
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-                    userPointService.chargeUserPoint(id, amount);
-                });
-
-        //then
-        assertThat(exception.getMessage()).isEqualTo("적립할 포인트 금액이 유효하지 않습니다.");
+        //when + then
+        assertThatThrownBy(()->userPointService.chargeUserPoint(id, amount))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("적립할 포인트 금액이 유효하지 않습니다.");
     }
 
     @Test
@@ -71,16 +63,11 @@ class UserPointServiceTest {
         UserPoint givenUserPoint = new UserPoint(id, 1000, System.currentTimeMillis());
 
         given(userPointRepository.selectById(anyLong())).willReturn(givenUserPoint);
-        given(userPointRepository.updateUserPoint(anyLong(), anyLong())).willReturn(new UserPoint(id, 10_001_000, System.currentTimeMillis()));
 
-
-        //when
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userPointService.chargeUserPoint(id, amount);
-        });
-
-        //then
-        assertThat(exception.getMessage()).isEqualTo("최대 보유 가능한 포인트 잔액을 초과합니다.");
+        //when + then
+        assertThatThrownBy(()->userPointService.chargeUserPoint(id, amount))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("최대 보유 가능한 포인트 잔액을 초과합니다.");
     }
 
     @Test
@@ -112,13 +99,10 @@ class UserPointServiceTest {
 
         UserPoint givenUserPoint = new UserPoint(id, 1000, System.currentTimeMillis());
 
-        //when
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userPointService.useUserPoint(id, amount);
-        });
-
-        //then
-        assertThat(exception.getMessage()).isEqualTo("사용할 포인트 금액이 유효하지 않습니다.");
+        //when + then
+        assertThatThrownBy(()->userPointService.useUserPoint(id, amount))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("사용할 포인트 금액이 유효하지 않습니다.");
     }
 
     @Test
@@ -128,14 +112,10 @@ class UserPointServiceTest {
         long amount = 100;
 
         given(userPointRepository.selectById(anyLong())).willReturn(UserPoint.empty(id));
-        given(userPointRepository.updateUserPoint(anyLong(), anyLong())).willReturn(new UserPoint(id, -100, System.currentTimeMillis()));
 
-        //when
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userPointService.useUserPoint(id, amount);
-        });
-
-        //then
-        assertThat(exception.getMessage()).isEqualTo("보유한 포인트 금액을 초과하여 사용할 수 없습니다.");
+        //when + then
+        assertThatThrownBy(()->userPointService.useUserPoint(id, amount))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("보유한 포인트 금액을 초과하여 사용할 수 없습니다.");
     }
 }

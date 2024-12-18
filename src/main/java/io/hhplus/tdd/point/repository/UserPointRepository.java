@@ -5,20 +5,16 @@ import io.hhplus.tdd.database.UserPointTable;
 import io.hhplus.tdd.point.PointHistory;
 import io.hhplus.tdd.point.TransactionType;
 import io.hhplus.tdd.point.UserPoint;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class UserPointRepository {
-    UserPointTable userPointTable;
-    PointHistoryTable pointHistoryTable;
-
-    public UserPointRepository(UserPointTable userPointTable, PointHistoryTable pointHistoryTable) {
-        this.userPointTable = userPointTable;
-        this.pointHistoryTable = pointHistoryTable;
-    }
-
+    private final UserPointTable userPointTable;
+    private final PointHistoryTable pointHistoryTable;
 
     public UserPoint selectById(long id) {
         return userPointTable.selectById(id);
