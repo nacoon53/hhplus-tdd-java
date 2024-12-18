@@ -1,5 +1,9 @@
 package io.hhplus.tdd.point;
 
+import io.hhplus.tdd.point.dto.UserPointRequestDTO;
+import io.hhplus.tdd.point.service.UserPointService;
+import io.hhplus.tdd.point.service.UserService;
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +14,14 @@ import java.util.List;
 @RequestMapping("/point")
 public class PointController {
 
+    UserService userService;
+    UserPointService userPointService;
+
+    public PointController(UserService userService, UserPointService userPointService) {
+        this.userService = userService;
+        this.userPointService = userPointService;
+    }
+
     private static final Logger log = LoggerFactory.getLogger(PointController.class);
 
     /**
@@ -18,8 +30,11 @@ public class PointController {
     @GetMapping("{id}")
     public UserPoint point(
             @PathVariable long id
-    ) {
-        return new UserPoint(0, 0, 0);
+    ) throws BadRequestException {
+        //포인트 조회
+        UserPoint userPoint = userPointService.getPointAmount(id);
+
+        return userPoint;
     }
 
     /**
@@ -29,7 +44,10 @@ public class PointController {
     public List<PointHistory> history(
             @PathVariable long id
     ) {
-        return List.of();
+        //포인트 내역 조회
+        List<PointHistory> list = userPointService.getPointHistoryByUserId(id);
+
+        return list;
     }
 
     /**
@@ -38,9 +56,9 @@ public class PointController {
     @PatchMapping("{id}/charge")
     public UserPoint charge(
             @PathVariable long id,
-            @RequestBody long amount
-    ) {
-        return new UserPoint(0, 0, 0);
+            @RequestBody UserPointRequestDTO requestDTO
+            ) throws BadRequestException{
+        return userPointService.chargeUserPoint(id, requestDTO.getAmount());
     }
 
     /**
@@ -49,8 +67,8 @@ public class PointController {
     @PatchMapping("{id}/use")
     public UserPoint use(
             @PathVariable long id,
-            @RequestBody long amount
-    ) {
-        return new UserPoint(0, 0, 0);
+            @RequestBody UserPointRequestDTO requestDTO
+    ) throws BadRequestException {
+        return userPointService.useUserPoint(id, requestDTO.getAmount());
     }
 }
