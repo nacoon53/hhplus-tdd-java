@@ -13,7 +13,7 @@ public class UserPointLockManager {
     private static final Map<Long, Lock> userPointLocks = new ConcurrentHashMap<>();
 
     private static Lock getLock(long userId) {
-        return userPointLocks.computeIfAbsent(userId, k -> new ReentrantLock());
+        return userPointLocks.computeIfAbsent(userId, k -> new ReentrantLock(true));
     }
 
     public static void lock(long userId) {
